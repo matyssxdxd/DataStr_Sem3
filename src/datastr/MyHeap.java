@@ -29,24 +29,16 @@ public class MyHeap<Ttype> {
 	public int howManyElements() {
 		return counter;
 	}
-	
-	//1. funkcijas deklarācija
+
 	private void resize()
 	{
-	//3. apreķināt newSize
-		int newSize = (counter <= 100)? size * 2 : (int)(size * 1.5);
-	//4. izveidot listNew ar newSize izmeru
+		int newSize = (counter <= 100) ? size * 2 : (int)(size * 1.5);
 		Ttype[] heapNew = (Ttype[]) new Object[newSize];
-	//5. veikt kopēsanu no veca masīva uz jauno
 		for(int i = 0; i < size; i++) {
 			heapNew[i] = heap[i];
 		}
-		
-	//6. nomainam list refernci uz listNew
 		heap = heapNew;
-	//7. izsaukt Garbage Collector
 		System.gc();
-	//8. size noaminām uz newSize
 		size = newSize;
 	}
 	
@@ -58,7 +50,7 @@ public class MyHeap<Ttype> {
 		
 		heap[counter] = element;
 		counter++;
-		//TODO reheapUp();
+		reheapUp(counter - 1);
 		
 	}
 	
@@ -69,7 +61,7 @@ public class MyHeap<Ttype> {
 		Ttype prioElement = heap[0];
 		heap[0] = heap[counter-1];
 		counter--;
-		//TODO reaheapDown()
+		reheapDown(0);
 		return prioElement;
 		
 	}
@@ -87,13 +79,93 @@ public class MyHeap<Ttype> {
 	
 	//TODO print() - rekursīvo
 
+	public void printRecursive() throws Exception {
+		if(isEmpty()) throw new Exception("Array is empty and it "
+				+ "is not possible to print elements");
+
+		printRecursiveHelp(0);
+	}
+
+	private void printRecursiveHelp(int indexOfElement) {
+
+		Ttype element = heap[indexOfElement];
+		System.out.print("P: " + element + " ");
+
+		int leftChildIndex = indexOfElement * 2 + 1;
+		int rightChildIndex = indexOfElement * 2 + 2;
+
+		if (leftChildIndex < counter) {
+			Ttype leftChild = heap[leftChildIndex];
+			System.out.print("L: " + leftChild + " [" + element + "] \n");
+			printRecursiveHelp(leftChildIndex);
+		}
+
+		if (rightChildIndex < counter) {
+			Ttype rightChild = heap[rightChildIndex];
+			System.out.print("R: " + rightChild + " [" + element + "] \n");
+			printRecursiveHelp(rightChildIndex);
+		}
+	}
+
 	public void makeEmpty() {
 		counter = 0;
 		size = HEAP_DEFAULT_SIZE;
 		heap = (Ttype[])new Object[size];
 		System.gc();	
 	}
-	
+
+	private void reheapUp(int indexOfElement) {
+		int parentIndex = (indexOfElement - 1) / 2;
+
+		if (parentIndex >= 0 ) {
+			Ttype element = heap[indexOfElement];
+			Ttype parent = heap[parentIndex];
+
+			if (((Comparable)(element)).compareTo(parent) == 1) {
+				swap(parentIndex, indexOfElement);
+				reheapUp(parentIndex);
+			}
+		}
+ 	}
+
+	 private void reheapDown(int indexOfElement) {
+		int leftChildIndex = indexOfElement * 2 + 1;
+		int rightChildIndex = indexOfElement * 2 + 2;
+		Ttype leftChild;
+		Ttype rightChild;
+		Ttype element = heap[indexOfElement];
+
+		if (leftChildIndex < counter && rightChildIndex < counter) {
+			leftChild = heap[leftChildIndex];
+			rightChild = heap[rightChildIndex];
+
+			if (((Comparable)(leftChild)).compareTo(rightChild) == 1) {
+				if ( ((Comparable)(leftChild)).compareTo(element) == 1) {
+					swap(leftChildIndex, indexOfElement);
+					reheapDown(leftChildIndex);
+				}
+			} else {
+				if (((Comparable)(rightChild)).compareTo(element) == 1) {
+					swap(rightChildIndex, indexOfElement);
+					reheapDown(rightChildIndex);
+				}
+			}
+		} else if (leftChildIndex < counter) {
+			leftChild = heap[leftChildIndex];
+
+			if (((Comparable)(leftChild)).compareTo(element) == 1) {
+				swap(leftChildIndex, indexOfElement);
+			}
+		}
+	 }
+
+	 private void swap(int index1, int index2) {
+		Ttype temp = heap[index1];
+		heap[index1] = heap[index2];
+		heap[index2] = temp;
+	 }
+
+
 	
 	
 	
